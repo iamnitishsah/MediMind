@@ -36,9 +36,9 @@ Authorization: Bearer <your_jwt_token>
 - **Refresh Token Lifetime**: 7 days
 - **Refresh Token Rotation**: Enabled
 
-## Base URL
+## Deployed Domain URL
 ```
-http://your-domain.com/
+https://medimind-backend-veby.onrender.com
 ```
 
 ## API Endpoints
