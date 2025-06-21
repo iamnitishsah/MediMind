@@ -143,6 +143,29 @@ Get a new access token using refresh token.
 }
 ```
 
+#### Get Current User Profile
+
+Retrieve the authenticated user's profile information.
+
+**Endpoint:** `GET /users/me/`
+**Authentication:** Required
+
+**Response (200 OK):**
+
+```json
+{
+  "user": {
+    "first_name": "Nitish",
+    "last_name": "Kumar",
+    "username": "iamnitishsah",
+    "email": "iamnitishsah12@gmail.com"
+  },
+  "specialization": "Neurology",
+  "license_number": "123BT0791"
+}
+```
+---
+
 ### Patient Management
 
 #### List Patients
