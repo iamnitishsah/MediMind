@@ -52,12 +52,6 @@ GOOGLE_API_KEY=your_google_api_key_here
 python app.py
 ```
 
-Server will be running on:
-
-```
-https://codeclinqo.onrender.com
-```
-
 ---
 
 ## 📡 API Documentation
