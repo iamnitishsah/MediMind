@@ -1,4 +1,4 @@
-# 🩺 AI Prescription Generator API
+# 🩺 MediMind-AI Prescription Generator
 
 This is a Flask-based API that uses **Google Gemini (via LangChain)** to generate medical diagnoses and prescriptions based on patient data.
 
@@ -18,8 +18,8 @@ This is a Flask-based API that uses **Google Gemini (via LangChain)** to generat
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/ai-prescription-generator.git
-cd ai-prescription-generator
+git clone https://github.com/iamnitishsah/MediMind/MediMind-AI.git
+cd MediMind-AI
 ````
 
 ### 2. Install Dependencies
@@ -146,7 +146,7 @@ Generate a medical diagnosis and prescription from patient input.
 ## 🧪 Testing with Postman
 
 1. Select `POST` method.
-2. URL: `https://codeclinqo.onrender.com/generate_prescription`
+2. URL: `http://your-domain.com/generate_prescription`
 3. Headers: `Content-Type: application/json`
 4. Body: raw JSON as shown above
 5. Click **Send** to get AI-generated prescription.

@@ -1,4 +1,4 @@
-# Clinqo API Documentation
+# MediMind API Documentation
 
 A comprehensive REST API for medical clinic management system built with Django REST Framework.
 
@@ -16,7 +16,7 @@ A comprehensive REST API for medical clinic management system built with Django 
 
 ## Overview
 
-Clinqo is a medical clinic management API that allows healthcare professionals to:
+MediMind is a medical clinic management API that allows healthcare professionals to:
 - Register and authenticate as doctors
 - Manage patient records
 - Create and manage prescriptions
