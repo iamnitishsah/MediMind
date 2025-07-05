@@ -54,7 +54,7 @@ python app.py
 
 ## Deployed Domain URL
 ```
-https://medimind-backend-veby.onrender.com
+https://medimind-ai.onrender.com
 ```
 
 ---
