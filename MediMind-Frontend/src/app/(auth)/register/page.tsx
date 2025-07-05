@@ -142,7 +142,7 @@ export default function RegisterPage() {
     
     try {
       // TODO: Replace with actual API call to your Django backend
-      const response = await fetch('http://127.0.0.1:8000/users/register/', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/register/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -113,7 +113,7 @@ export default function CreatePatientPage() {
         return;
       }
       
-      const response = await fetch('http://127.0.0.1:8000/patients/', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/patients/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

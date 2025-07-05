@@ -26,7 +26,7 @@ export default function PatientsPage() {
                     router.push("/login");
                     return;
                 }
-                const response = await fetch('http://127.0.0.1:8000/patients/', {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/patients/`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
