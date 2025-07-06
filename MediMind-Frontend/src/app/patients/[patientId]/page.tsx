@@ -376,31 +376,31 @@ export default function PatientDetailsPage() {
       {/* Header */}
       <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-4 sm:py-6 gap-4">
+            <div className="flex items-center min-w-0 flex-1">
               <Link
                 href="/patients"
-                className="mr-4 text-gray-400 hover:text-gray-600 transition-colors"
+                className="mr-3 sm:mr-4 text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </Link>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 truncate">
                   {isEditing ? 'Edit Patient' : 'Patient Details'}
                 </h1>
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-xs sm:text-sm text-gray-500">
                   {isEditing ? 'Update patient information' : 'View and manage patient information'}
                 </p>
               </div>
             </div>
-            <div className="flex space-x-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:flex-shrink-0">
               {!isEditing ? (
                 <>
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-medium transition duration-150 ease-in-out flex items-center"
+                    className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-3 sm:px-4 py-2 rounded-md font-medium transition duration-150 ease-in-out flex items-center justify-center text-sm sm:text-base"
                   >
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -409,7 +409,7 @@ export default function PatientDetailsPage() {
                   </button>
                   <button
                     onClick={() => setShowDeleteModal(true)}
-                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium transition duration-150 ease-in-out flex items-center"
+                    className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 rounded-md font-medium transition duration-150 ease-in-out flex items-center justify-center text-sm sm:text-base"
                   >
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -421,14 +421,14 @@ export default function PatientDetailsPage() {
                 <>
                   <button
                     onClick={handleCancel}
-                    className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md font-medium transition duration-150 ease-in-out"
+                    className="w-full sm:w-auto bg-gray-300 hover:bg-gray-400 text-gray-700 px-3 sm:px-4 py-2 rounded-md font-medium transition duration-150 ease-in-out text-sm sm:text-base"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className={`px-4 py-2 rounded-md font-medium transition duration-150 ease-in-out flex items-center ${
+                    className={`w-full sm:w-auto px-3 sm:px-4 py-2 rounded-md font-medium transition duration-150 ease-in-out flex items-center justify-center text-sm sm:text-base ${
                       isSaving
                         ? 'bg-gray-400 cursor-not-allowed text-white'
                         : 'bg-green-600 hover:bg-green-700 text-white'

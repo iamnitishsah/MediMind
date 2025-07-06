@@ -109,7 +109,7 @@ export default function CreatePatientPage() {
       if(!token) {
         toast.dismiss(loadingToast);
         toast.error('Please login to create patients');
-        router.push("/auth/login");
+        router.push("/login");
         return;
       }
       
@@ -146,7 +146,7 @@ export default function CreatePatientPage() {
         toast.error('Session expired. Please login again');
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
-        router.push('/auth/login');
+        router.push('/login');
       } else {
         const errorData = await response.json();
         toast.dismiss(loadingToast);
@@ -412,17 +412,6 @@ export default function CreatePatientPage() {
           </div>
         </div>
 
-        {/* Sample Data Card */}
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 className="text-sm font-medium text-blue-800 mb-2">Sample Data:</h4>
-          <div className="text-xs text-blue-700 space-y-1">
-            <p><strong>Name:</strong> John Smith</p>
-            <p><strong>Age:</strong> 35</p>
-            <p><strong>Gender:</strong> Male</p>
-            <p><strong>Allergies:</strong> Penicillin, Shellfish</p>
-            <p><strong>Medical History:</strong> Hypertension, Type 2 Diabetes</p>
-          </div>
-        </div>
       </div>
     </div>
   );
