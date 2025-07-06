@@ -129,7 +129,7 @@ export default function CreatePatientPage() {
       });
 
       if (response.ok) {
-        const newPatient = await response.json();
+        await response.json();
         // Dismiss loading toast and show success
         toast.dismiss(loadingToast);
         toast.success(`Patient "${formData.name}" created successfully!`, {

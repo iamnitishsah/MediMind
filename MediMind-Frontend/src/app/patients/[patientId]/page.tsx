@@ -330,7 +330,7 @@ export default function PatientDetailsPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900">Patient Not Found</h2>
-          <p className="mt-2 text-gray-600">The patient you're looking for doesn't exist.</p>
+          <p className="mt-2 text-gray-600">The patient you&apos;re looking for doesn&apos;t exist.</p>
           <Link
             href="/patients"
             className="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
@@ -642,7 +642,7 @@ export default function PatientDetailsPage() {
                     </svg>
                     <h4 className="mt-2 text-sm font-medium text-gray-900">No prescriptions found</h4>
                     <p className="mt-1 text-sm text-gray-500">
-                      This patient doesn't have any prescriptions yet.
+                      This patient doesn&apos;t have any prescriptions yet.
                     </p>
                   </div>
                 ) : (
@@ -728,10 +728,10 @@ export default function PatientDetailsPage() {
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+          <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mx-auto">
                 <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
@@ -744,7 +744,7 @@ export default function PatientDetailsPage() {
                     This action cannot be undone.
                   </p>
                 </div>
-                <div className="flex space-x-3 mt-6">
+                <div className="flex flex-col sm:flex-row gap-3 mt-6">
                   <button
                     onClick={() => setShowDeleteModal(false)}
                     className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out"

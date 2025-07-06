@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast, { Toaster } from 'react-hot-toast';
@@ -43,11 +43,7 @@ export default function GeneratePrescriptionPage() {
   const [editedPrescription, setEditedPrescription] = useState<PrescriptionResponse | null>(null);
 
   // Fetch patients on component mount
-  useEffect(() => {
-    fetchPatients();
-  }, []);
-
-  const fetchPatients = async () => {
+  const fetchPatients = useCallback(async () => {
     setIsLoading(true);
     try {
       const token = localStorage.getItem('access_token');
@@ -72,7 +68,11 @@ export default function GeneratePrescriptionPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    fetchPatients();
+  }, [fetchPatients]);
 
   // Filter patients based on search query
   const filteredPatients = patients.filter(patient =>
@@ -408,7 +408,7 @@ export default function GeneratePrescriptionPage() {
               <div className="mb-4">
                 <input
                   type="text"
-                  placeholder="Search patients by name, phone, or email..."
+                  placeholder="Search patients..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm"
@@ -462,7 +462,7 @@ export default function GeneratePrescriptionPage() {
                       <svg className="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                       </svg>
-                      <p className="text-gray-600">No patients found matching "{searchQuery}"</p>
+                      <p className="text-gray-600">No patients found matching &quot;{searchQuery}&quot;</p>
                     </div>
                   )}
                   {filteredPatients.length === 0 && !searchQuery && (
@@ -470,7 +470,7 @@ export default function GeneratePrescriptionPage() {
                       <svg className="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                       </svg>
-                      <p className="text-gray-600">Start typing to search for patients</p>
+                      <p className="text-gray-600">Create a patient before generating prescription</p>
                     </div>
                   )}
                 </div>

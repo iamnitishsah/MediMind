@@ -46,7 +46,7 @@ export default function PatientsPage() {
         };
 
         fetchPatients();
-    }, []);
+    }, [router]);
 
     // Filter patients based on search term
     const filteredPatients = useMemo(() => {

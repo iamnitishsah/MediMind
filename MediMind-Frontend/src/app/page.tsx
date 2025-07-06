@@ -205,7 +205,7 @@ export default function HomePage() {
                 <span className="text-indigo-600 block">Medical Practice</span>
               </h1>
               <p className="mt-6 text-xl text-gray-600 leading-relaxed">
-                Streamline patient management, generate AI-powered prescriptions, and enhance healthcare delivery with MediMind's comprehensive digital solution.
+                Streamline patient management, generate AI-powered prescriptions, and enhance healthcare delivery with MediMind&apos;s comprehensive digital solution.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Link
