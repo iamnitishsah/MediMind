@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -55,6 +56,7 @@ llm = ChatGoogleGenerativeAI(model="gemini-2.5-pro", google_api_key=GOOGLE_API_K
 chain = prompt | llm | parser
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/generate_prescription', methods=['POST'])
 def generate_prescription():
