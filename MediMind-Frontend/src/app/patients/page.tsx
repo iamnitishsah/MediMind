@@ -10,6 +10,19 @@ interface Patient {
     name: string;
     age: number;
     gender: string;
+    doctor: number;
+}
+
+interface UserProfile {
+    user: {
+        id: number,
+        first_name: string,
+        last_name: string,
+        username: string,
+        email: string,
+    },
+    specialization: string,
+    license_number: string
 }
 
 export default function PatientsPage() {
@@ -19,33 +32,57 @@ export default function PatientsPage() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchPatients = async () => {
+        const fetchDoctorAndPatients = async () => {
             setIsLoading(true);
             try {
-                // GET PATIENTS
                 const token = localStorage.getItem("access_token");
                 if(!token) {
                     router.push("/login");
                     return;
                 }
-                const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/patients/`, {
+
+                // First, fetch the current doctor's information
+                const doctorResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/me/`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     }
-                })
-                const data = await response.json();
+                });
 
-                setPatients(data);
+                if (!doctorResponse.ok) {
+                    throw new Error('Failed to fetch doctor information');
+                }
+
+                const doctorData: UserProfile = await doctorResponse.json();
+
+                // Then, fetch patients for this doctor
+                const patientsResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/patients/doc${doctorData.user.id}/`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!patientsResponse.ok) {
+                    throw new Error('Failed to fetch patients');
+                }
+
+                const patientsData = await patientsResponse.json();
+                setPatients(patientsData);
             } catch (error) {
-                console.error('Error fetching patients:', error);
+                console.error('Error fetching doctor or patients:', error);
+                // If there's an authentication error, redirect to login
+                if (error instanceof Error && error.message.includes('Failed to fetch doctor')) {
+                    router.push("/login");
+                }
             } finally {
                 setIsLoading(false);
             }
         };
 
-        fetchPatients();
+        fetchDoctorAndPatients();
     }, [router]);
 
     // Filter patients based on search term
