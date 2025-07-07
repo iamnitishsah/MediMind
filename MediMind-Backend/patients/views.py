@@ -30,24 +30,27 @@ class PatientListCreateView(generics.ListCreateAPIView):
 
         return queryset.order_by('name')
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            patient = serializer.save()
-            return Response(
-                {
-                    'message': 'Patient created successfully',
-                    'patient': PatientSerializer(patient).data
-                },
-                status=status.HTTP_201_CREATED
-            )
-        return Response(
-            {
-                'error': 'Validation failed',
-                'details': serializer.errors
-            },
-            status=status.HTTP_400_BAD_REQUEST
-        )
+    def perform_create(self, serializer):
+        serializer.save(doctor=self.request.user.profile)
+
+    # def create(self, request, *args, **kwargs):
+    #     serializer = self.get_serializer(data=request.data)
+    #     if serializer.is_valid():
+    #         patient = serializer.save()
+    #         return Response(
+    #             {
+    #                 'message': 'Patient created successfully',
+    #                 'patient': PatientSerializer(patient).data
+    #             },
+    #             status=status.HTTP_201_CREATED
+    #         )
+    #     return Response(
+    #         {
+    #             'error': 'Validation failed',
+    #             'details': serializer.errors
+    #         },
+    #         status=status.HTTP_400_BAD_REQUEST
+    #     )
 
 
 class PatientDetailView(generics.RetrieveUpdateDestroyAPIView):
