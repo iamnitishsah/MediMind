@@ -5,8 +5,8 @@ from .models import Patient
 class PatientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Patient
-        fields = ['id', 'name', 'age', 'gender', 'allergies', 'medical_history']
-        read_only_fields = ['id']
+        fields = ['id', 'name', 'age', 'gender', 'allergies', 'medical_history', 'doctor']
+        read_only_fields = ['id', 'doctor']
 
     def validate_age(self, value):
         if value < 0 or value > 150:
@@ -22,4 +22,4 @@ class PatientSerializer(serializers.ModelSerializer):
 class PatientListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Patient
-        fields = ['id', 'name', 'age', 'gender']
+        fields = ['id', 'name', 'age', 'gender', 'doctor']
