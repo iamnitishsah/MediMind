@@ -92,3 +92,11 @@ class PatientDetailView(generics.RetrieveUpdateDestroyAPIView):
             },
             status=status.HTTP_200_OK
         )
+
+class PatientListByDoctorView(generics.ListAPIView):
+    serializer_class = PatientListSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        doctor_id = self.kwargs['doctor']
+        return Patient.objects.filter(doctor=doctor_id)
