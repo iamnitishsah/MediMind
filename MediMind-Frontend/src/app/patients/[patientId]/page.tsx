@@ -330,7 +330,7 @@ export default function PatientDetailsPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900">Patient Not Found</h2>
-          <p className="mt-2 text-gray-600">The patient you're looking for doesn't exist.</p>
+          <p className="mt-2 text-gray-600">The patient you&apos;re looking for doesn&apos;t exist.</p>
           <Link
             href="/patients"
             className="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
@@ -376,31 +376,31 @@ export default function PatientDetailsPage() {
       {/* Header */}
       <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-4 sm:py-6 gap-4">
+            <div className="flex items-center min-w-0 flex-1">
               <Link
                 href="/patients"
-                className="mr-4 text-gray-400 hover:text-gray-600 transition-colors"
+                className="mr-3 sm:mr-4 text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </Link>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 truncate">
                   {isEditing ? 'Edit Patient' : 'Patient Details'}
                 </h1>
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-xs sm:text-sm text-gray-500">
                   {isEditing ? 'Update patient information' : 'View and manage patient information'}
                 </p>
               </div>
             </div>
-            <div className="flex space-x-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:flex-shrink-0">
               {!isEditing ? (
                 <>
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-medium transition duration-150 ease-in-out flex items-center"
+                    className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-3 sm:px-4 py-2 rounded-md font-medium transition duration-150 ease-in-out flex items-center justify-center text-sm sm:text-base"
                   >
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -409,7 +409,7 @@ export default function PatientDetailsPage() {
                   </button>
                   <button
                     onClick={() => setShowDeleteModal(true)}
-                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium transition duration-150 ease-in-out flex items-center"
+                    className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 rounded-md font-medium transition duration-150 ease-in-out flex items-center justify-center text-sm sm:text-base"
                   >
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -421,14 +421,14 @@ export default function PatientDetailsPage() {
                 <>
                   <button
                     onClick={handleCancel}
-                    className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md font-medium transition duration-150 ease-in-out"
+                    className="w-full sm:w-auto bg-gray-300 hover:bg-gray-400 text-gray-700 px-3 sm:px-4 py-2 rounded-md font-medium transition duration-150 ease-in-out text-sm sm:text-base"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className={`px-4 py-2 rounded-md font-medium transition duration-150 ease-in-out flex items-center ${
+                    className={`w-full sm:w-auto px-3 sm:px-4 py-2 rounded-md font-medium transition duration-150 ease-in-out flex items-center justify-center text-sm sm:text-base ${
                       isSaving
                         ? 'bg-gray-400 cursor-not-allowed text-white'
                         : 'bg-green-600 hover:bg-green-700 text-white'
@@ -642,7 +642,7 @@ export default function PatientDetailsPage() {
                     </svg>
                     <h4 className="mt-2 text-sm font-medium text-gray-900">No prescriptions found</h4>
                     <p className="mt-1 text-sm text-gray-500">
-                      This patient doesn't have any prescriptions yet.
+                      This patient doesn&apos;t have any prescriptions yet.
                     </p>
                   </div>
                 ) : (
@@ -728,10 +728,10 @@ export default function PatientDetailsPage() {
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+          <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mx-auto">
                 <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
@@ -744,7 +744,7 @@ export default function PatientDetailsPage() {
                     This action cannot be undone.
                   </p>
                 </div>
-                <div className="flex space-x-3 mt-6">
+                <div className="flex flex-col sm:flex-row gap-3 mt-6">
                   <button
                     onClick={() => setShowDeleteModal(false)}
                     className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out"
