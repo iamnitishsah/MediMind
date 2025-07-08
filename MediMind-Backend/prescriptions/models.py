@@ -18,6 +18,10 @@ class Prescription(models.Model):
     def __str__(self):
         return f"Prescription for {self.patient.name} by Dr. {self.doctor.user.username} on {self.prescription_date}."
 
+    @property
+    def patient_name(self):
+        return self.patient.name
+
 
 class PrescriptionItem(models.Model):
     prescription = models.ForeignKey(Prescription, on_delete=models.CASCADE, related_name='prescription_items')
