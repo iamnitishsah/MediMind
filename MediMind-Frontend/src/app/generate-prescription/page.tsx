@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import toast, { Toaster } from 'react-hot-toast';
@@ -42,6 +42,14 @@ interface PrescriptionResponse {
 }
 
 export default function GeneratePrescriptionPage() {
+  return (
+      <Suspense fallback={<div>Loading...</div>}>
+        <PrescriptionContent />
+      </Suspense>
+  );
+}
+
+function PrescriptionContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const patientIdParam = searchParams.get('patientId');
