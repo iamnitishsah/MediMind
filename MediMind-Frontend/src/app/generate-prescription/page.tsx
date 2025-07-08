@@ -14,6 +14,19 @@ interface Patient {
   email?: string;
   allergies?: string;
   medical_history?: string;
+  doctor: number;
+}
+
+interface UserProfile {
+  user: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    username: string;
+    email: string;
+  };
+  specialization: string;
+  license_number: string;
 }
 
 interface PrescriptionItem {
@@ -52,19 +65,42 @@ export default function GeneratePrescriptionPage() {
         return;
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/patients/`, {
+      // First, fetch the current doctor's information
+      const doctorResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/me/`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         }
       });
-      if (response.ok) {
-        const data = await response.json();
-        setPatients(data);
+
+      if (!doctorResponse.ok) {
+        throw new Error('Failed to fetch doctor information');
       }
+
+      const doctorData: UserProfile = await doctorResponse.json();
+
+      // Then, fetch patients for this doctor
+      const patientsResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/patients/doc${doctorData.user.id}/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!patientsResponse.ok) {
+        throw new Error('Failed to fetch patients');
+      }
+
+      const patientsData = await patientsResponse.json();
+      setPatients(patientsData);
     } catch (error) {
-      console.error('Error fetching patients:', error);
+      console.error('Error fetching doctor or patients:', error);
+      // If there's an authentication error, redirect to login
+      if (error instanceof Error && error.message.includes('Failed to fetch doctor')) {
+        router.push('/login');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -158,8 +194,16 @@ export default function GeneratePrescriptionPage() {
   };
 
   const handleSavePrescription = async () => {
-    if (!selectedPatient || !editedPrescription) {
-      toast.error('Missing patient or prescription data');
+    if (!selectedPatient) {
+      toast.error('Missing patient data');
+      return;
+    }
+
+    // Use the edited prescription if in edit mode, otherwise use the original prescription
+    const prescriptionToSave = isEditing ? editedPrescription : prescription;
+    
+    if (!prescriptionToSave) {
+      toast.error('Missing prescription data');
       return;
     }
 
@@ -184,17 +228,19 @@ export default function GeneratePrescriptionPage() {
         body: JSON.stringify({
           patient: selectedPatient.id,
           symptoms: symptoms.trim(),
-          diagnosis: editedPrescription.diagnosis,
-          notes: editedPrescription.notes,
-          prescription_items: editedPrescription.prescription_items
+          diagnosis: prescriptionToSave.diagnosis,
+          notes: prescriptionToSave.notes,
+          prescription_items: prescriptionToSave.prescription_items
         }),
       });
 
       toast.dismiss(loadingToast);
 
       if (response.ok) {
-        setPrescription(editedPrescription);
-        setIsEditing(false);
+        if (isEditing) {
+          setPrescription(editedPrescription);
+          setIsEditing(false);
+        }
         toast.success('Prescription saved successfully!', {
           icon: '💾',
           duration: 3000
@@ -658,12 +704,38 @@ export default function GeneratePrescriptionPage() {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200">
+                  <div className="flex flex-col sm:flex-row md:flex-col gap-3 pt-6 border-t border-gray-200">
                     {!isEditing ? (
                       <>
                         <button
+                          onClick={handleSavePrescription}
+                          disabled={isSaving}
+                          className={`${
+                            isSaving
+                              ? 'bg-gray-400 cursor-not-allowed'
+                              : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 hover:shadow-xl hover:-translate-y-0.5'
+                          } text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center shadow-lg transform`}
+                        >
+                          {isSaving ? (
+                            <>
+                              <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Saving...
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                              </svg>
+                              Save Prescription
+                            </>
+                          )}
+                        </button>
+                        <button
                           onClick={handleEditPrescription}
-                          className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                          className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                         >
                           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
