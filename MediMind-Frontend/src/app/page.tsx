@@ -212,7 +212,7 @@ export default function HomePage() {
                   href="/register"
                   className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
                 >
-                  Start Free Trial
+                    Get Started
                 </Link>
                 <Link
                   href="/generate-prescription"
