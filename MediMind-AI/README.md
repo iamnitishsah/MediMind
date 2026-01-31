@@ -1,6 +1,6 @@
 # 🩺 MediMind-AI Prescription Generator
 
-This is a Flask-based API that uses **Google Gemini (via LangChain)** to generate medical diagnoses and prescriptions based on patient data.
+This is a FastAPI that uses **Google Gemini (via LangChain)** to generate medical diagnoses and prescriptions based on patient data.
 
 ---
 
@@ -9,7 +9,7 @@ This is a Flask-based API that uses **Google Gemini (via LangChain)** to generat
 - Accepts patient data in JSON format
 - Uses Google Gemini (via LangChain) for generating diagnosis and prescriptions
 - Returns structured JSON output with medicines and instructions
-- Built with Flask and Pydantic for easy integration and validation
+- Built with FastAPI and Pydantic for easy integration and validation
 
 ---
 
@@ -31,11 +31,13 @@ pip install -r requirements.txt
 **Requirements:**
 
 ```
-Flask
-langchain
-langchain-google-genai
-pydantic
+fastapi
+uvicorn[standard]
 python-dotenv
+pydantic
+langchain
+langchain-core
+langchain-google-genai
 ```
 
 ### 3. Add Environment Variables
@@ -46,10 +48,10 @@ Create a `.env` file and add your Google Gemini API key:
 GOOGLE_API_KEY=your_google_api_key_here
 ```
 
-### 4. Run the Flask Server
+### 4. Run the FastAPI Server
 
 ```bash
-python app.py
+uvicorn main:app --host 0.0.0.0 --port 8001 --reload
 ```
 
 ## Deployed Domain URL
