@@ -1,521 +1,351 @@
-# MediMind API Documentation
+# MediMind Backend (Django + DRF)
 
-A comprehensive REST API for medical clinic management system built with Django REST Framework.
+Backend API for **MediMind**, a lightweight clinical workflow service that lets doctors:
 
-## Table of Contents
-- [Overview](#overview)
-- [Authentication](#authentication)
-- [Base URL](#base-url)
-- [API Endpoints](#api-endpoints)
-  - [User Management](#user-management)
-  - [Patient Management](#patient-management)
-  - [Prescription Management](#prescription-management)
-- [Data Models](#data-models)
-- [Error Handling](#error-handling)
-- [Status Codes](#status-codes)
+- register/login (JWT)
+- manage patients
+- create prescriptions with one or more prescription items
 
-## Overview
+This repo is a Django project using Django REST Framework (DRF) and SimpleJWT.
 
-MediMind is a medical clinic management API that allows healthcare professionals to:
-- Register and authenticate as doctors
-- Manage patient records
-- Create and manage prescriptions
-- Track medical history and patient information
+---
+
+## Tech stack
+
+- **Python** 3.x
+- **Django** 5.2
+- **Django REST Framework**
+- **JWT auth** via `djangorestframework-simplejwt`
+- **PostgreSQL** (recommended/production) via `dj-database-url` + `psycopg`
+- **WhiteNoise** for static file serving
+- **django-cors-headers** for CORS
+
+Key dependencies live in `requirements.txt`.
+
+---
+
+## Project layout
+
+- `manage.py` — Django entrypoint
+- `MediMind/` — project config
+  - `settings.py` — settings, DB configuration, DRF/JWT config
+  - `urls.py` — root URL routing
+- `users/` — registration + profile
+- `patients/` — patient CRUD
+- `prescriptions/` — prescriptions + nested prescription items
+- `db.sqlite3` — local SQLite database file (present in repo, but DB config defaults to `DATABASE_URL`)
+
+---
+
+## Local development setup (macOS / zsh)
+
+### 1) Create and activate a virtual environment
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 2) Install dependencies
+
+```bash
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### 3) Configure environment variables
+
+This project loads environment variables using `python-dotenv` (see `MediMind/settings.py`).
+
+Create a `.env` file in the repo root:
+
+```bash
+cat > .env << 'EOF'
+# Django
+DJANGO_SECRET_KEY=your-secret-key
+DJANGO_DEBUG=True
+
+# Database (recommended: Postgres)
+# Example:
+# DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/DBNAME
+DATABASE_URL=
+EOF
+```
+
+Notes:
+- `DATABASE_URL` is **required** by the current `DATABASES` setting.
+- The DB config enforces `ssl_require=True`, which is great for production but can break some local Postgres setups.
+  - If you want SQLite locally, there’s a commented-out SQLite `DATABASES` block in `MediMind/settings.py`.
+
+### 4) Run migrations
+
+```bash
+python manage.py migrate
+```
+
+### 5) Create a superuser (optional, for admin)
+
+```bash
+python manage.py createsuperuser
+```
+
+### 6) Run the server
+
+```bash
+python manage.py runserver
+```
+
+Server runs at:
+
+- http://127.0.0.1:8000/
+
+---
+
+## Configuration
+
+### Environment variables
+
+| Variable | Default | Purpose |
+|---|---:|---|
+| `DJANGO_SECRET_KEY` | `djangorestframeworkkeyformedimind` | Django secret key |
+| `DJANGO_DEBUG` | `True` | Enables/disables debug mode |
+| `DATABASE_URL` | (no default) | Database connection string |
+
+### CORS / CSRF
+
+- `CORS_ALLOW_ALL_ORIGINS = True` (all origins allowed)
+- `CSRF_TRUSTED_ORIGINS` includes:
+  - `https://medimind-295g.onrender.com`
+  - `https://code-clinqo-rosy.vercel.app`
+  - `http://localhost:3000`
+
+---
 
 ## Authentication
 
-The API uses JWT (JSON Web Token) authentication. Most endpoints require authentication except for user registration and login.
+This API uses **JWT**.
 
-### Authentication Headers
-```
-Authorization: Bearer <your_jwt_token>
-```
+### Obtain token
 
-### Token Lifecycle
-- **Access Token Lifetime**: 60 minutes
-- **Refresh Token Lifetime**: 7 days
-- **Refresh Token Rotation**: Enabled
+`POST /users/login/`
 
-## Deployed Domain URL
-```
-https://medimind-backend-veby.onrender.com
-```
+Returns:
+- `access`
+- `refresh`
 
-## API Endpoints
+### Refresh token
 
-### User Management
+`POST /users/refresh/`
 
-#### Register Doctor
-Register a new doctor account.
+### Auth header
 
-**Endpoint:** `POST /users/register/`  
-**Authentication:** Not required
+For protected endpoints, send:
 
-**Request Body:**
-```json
-{
-  "first_name": "John",
-  "last_name": "Doe",
-  "username": "johndoe",
-  "email": "john.doe@example.com",
-  "password": "secure_password123",
-  "password2": "secure_password123",
-  "specialization": "Cardiology",
-  "license_number": "MD123456"
-}
-```
+- `Authorization: Bearer <access_token>`
 
-**Available Specializations:**
-- General Medicine
-- Cardiology
-- Endocrinology
-- Gastroenterology
-- Nephrology
-- Pulmonology
-- Rheumatology
-- Infectious Disease
-- Hematology
-- Oncology
-- Geriatrics
-- Neurology
-- Psychiatry
-- Pediatrics
-- Obstetrics and Gynecology
-- Dermatology
-- Orthopedics
-- Urology
-- Ophthalmology
-- Otolaryngology (ENT)
-- Family Medicine
-- Emergency Medicine
+By default, DRF permissions are `IsAuthenticated` globally (see `REST_FRAMEWORK` in `MediMind/settings.py`).
 
-**Response (201 Created):**
-```json
-{
-  "id": 1,
-  "first_name": "John",
-  "last_name": "Doe",
-  "username": "johndoe",
-  "email": "john.doe@example.com"
-}
-```
-
-#### Login
-Authenticate and receive JWT tokens.
-
-**Endpoint:** `POST /users/login/`  
-**Authentication:** Not required
-
-**Request Body:**
-```json
-{
-  "username": "johndoe",
-  "password": "secure_password123"
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-  "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
-}
-```
-
-#### Refresh Token
-Get a new access token using refresh token.
-
-**Endpoint:** `POST /users/refresh/`  
-**Authentication:** Not required
-
-**Request Body:**
-```json
-{
-  "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-  "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
-}
-```
-
-#### Get Current User Profile
-
-Retrieve the authenticated user's profile information.
-
-**Endpoint:** `GET /users/me/`
-**Authentication:** Required
-
-**Response (200 OK):**
-
-```json
-{
-  "user": {
-    "first_name": "Nitish",
-    "last_name": "Kumar",
-    "username": "iamnitishsah",
-    "email": "iamnitishsah12@gmail.com"
-  },
-  "specialization": "Neurology",
-  "license_number": "123BT0791"
-}
-```
 ---
 
-### Patient Management
+## API Reference
 
-#### List Patients
-Get a list of all patients with optional search functionality.
+Root routing is defined in `MediMind/urls.py`:
 
-**Endpoint:** `GET /patients/`  
-**Authentication:** Required
+- `/users/` → `users.urls`
+- `/patients/` → `patients.urls`
+- `/prescriptions/` → `prescriptions.urls`
+- `/nitish/` → Django admin
 
-**Query Parameters:**
-- `search` (optional): Search by name or gender
+### Users
 
-**Examples:**
-```
-GET /patients/
-GET /patients/?search=John
-GET /patients/?search=Male
-```
+Base path: `/users/`
 
-**Response (200 OK):**
-```json
-[
-  {
-    "id": 1,
-    "name": "John Smith",
-    "age": 35,
-    "gender": "Male"
-  },
-  {
-    "id": 2,
-    "name": "Jane Doe",
-    "age": 28,
-    "gender": "Female"
-  }
-]
-```
+#### Register
 
-#### Create Patient
-Add a new patient to the system.
+- `POST /users/register/`
+- Permission: **public** (`AllowAny`)
 
-**Endpoint:** `POST /patients/`  
-**Authentication:** Required
+Body (serializer fields):
+- `first_name`, `last_name`
+- `username`
+- `email`
+- `specialization` (stored on `UserProfile`)
+- `license_number` (unique, stored on `UserProfile`)
+- `password`, `password2`
 
-**Request Body:**
-```json
-{
-  "name": "John Smith",
-  "age": 35,
-  "gender": "Male",
-  "allergies": "Penicillin, Shellfish",
-  "medical_history": "Hypertension, Type 2 Diabetes"
-}
-```
+Creates:
+- `django.contrib.auth.models.User`
+- `users.UserProfile` (OneToOne)
 
-**Response (201 Created):**
-```json
-{
-  "message": "Patient created successfully",
-  "patient": {
-    "id": 1,
-    "name": "John Smith",
-    "age": 35,
-    "gender": "Male",
-    "allergies": "Penicillin, Shellfish",
-    "medical_history": "Hypertension, Type 2 Diabetes"
-  }
-}
-```
+#### Login (JWT)
 
-#### Get Patient Details
-Retrieve detailed information about a specific patient.
+- `POST /users/login/`
+- Permission: public
 
-**Endpoint:** `GET /patients/<int:id>/`  
-**Authentication:** Required
+#### Refresh (JWT)
 
-**Response (200 OK):**
-```json
-{
-  "id": 1,
-  "name": "John Smith",
-  "age": 35,
-  "gender": "Male",
-  "allergies": "Penicillin, Shellfish",
-  "medical_history": "Hypertension, Type 2 Diabetes"
-}
-```
+- `POST /users/refresh/`
+- Permission: public
 
-#### Update Patient
-Update patient information (full or partial update).
+#### Current user profile
 
-**Endpoint:** `PUT /patients/<int:id>/` or `PATCH /patients/<int:id>/`  
-**Authentication:** Required
+- `GET /users/me/`
+- Permission: authenticated
 
-**Request Body (PUT - full update):**
-```json
-{
-  "name": "John Smith Jr",
-  "age": 36,
-  "gender": "Male",
-  "allergies": "Penicillin, Shellfish, Nuts",
-  "medical_history": "Hypertension, Type 2 Diabetes, High Cholesterol"
-}
-```
+Returns a `UserProfile` representation which nests user fields.
 
-**Request Body (PATCH - partial update):**
-```json
-{
-  "age": 36,
-  "allergies": "Penicillin, Shellfish, Nuts"
-}
-```
+---
 
-**Response (200 OK):**
-```json
-{
-  "message": "Patient updated successfully",
-  "patient": {
-    "id": 1,
-    "name": "John Smith Jr",
-    "age": 36,
-    "gender": "Male",
-    "allergies": "Penicillin, Shellfish, Nuts",
-    "medical_history": "Hypertension, Type 2 Diabetes, High Cholesterol"
-  }
-}
-```
+### Patients
 
-#### Delete Patient
-Remove a patient from the system.
+Base path: `/patients/`
 
-**Endpoint:** `DELETE /patients/<int:id>/`  
-**Authentication:** Required
+#### List patients
 
-**Response (200 OK):**
-```json
-{
-  "message": "Patient \"John Smith Jr\" deleted successfully"
-}
-```
+- `GET /patients/`
+- Permission: authenticated
 
-### Prescription Management
+Supports query param:
+- `search` — filters by `name` or `gender` (case-insensitive)
 
-#### List Prescriptions
-Get a list of all prescriptions.
+Response uses `PatientListSerializer` with:
+- `id`, `name`, `age`, `gender`, `doctor`
 
-**Endpoint:** `GET /prescriptions/`  
-**Authentication:** Required
+> Note: the current implementation lists **all** patients in the database, not just the logged-in doctor’s patients.
 
-**Response (200 OK):**
-```json
-[
-  {
-    "id": 1,
-    "prescription_date": "2025-06-19",
-    "doctor": 1,
-    "patient": 1,
-    "symptoms": "Chest pain, shortness of breath",
-    "diagnosis": "Angina pectoris",
-    "notes": "Patient advised to follow up in 2 weeks",
-    "prescription_items": [
-      {
-        "medicine": "Aspirin",
-        "dosage": "81mg daily",
-        "instructions": "Take with food in the morning"
-      },
-      {
-        "medicine": "Metoprolol",
-        "dosage": "50mg twice daily",
-        "instructions": "Take with or without food"
-      }
-    ]
-  }
-]
-```
+#### Create patient
 
-#### Create Prescription
-Create a new prescription for a patient.
+- `POST /patients/`
+- Permission: authenticated
 
-**Endpoint:** `POST /prescriptions/`  
-**Authentication:** Required
+Body fields:
+- `name` (min 2 chars; normalized to title case)
+- `age` (0–150)
+- `gender` (`Male` / `Female` / `Other`)
+- `allergies` (optional)
+- `medical_history` (optional)
 
-**Request Body:**
-```json
-{
-  "patient": 1,
-  "symptoms": "Chest pain, shortness of breath",
-  "diagnosis": "Angina pectoris",
-  "notes": "Patient advised to follow up in 2 weeks",
-  "prescription_items": [
-    {
-      "medicine": "Aspirin",
-      "dosage": "81mg daily",
-      "instructions": "Take with food in the morning"
-    },
-    {
-      "medicine": "Metoprolol",
-      "dosage": "50mg twice daily",
-      "instructions": "Take with or without food"
-    }
-  ]
-}
+The `doctor` field is set automatically to `request.user.profile`.
+
+#### Retrieve / update / delete patient
+
+- `GET /patients/<id>/`
+- `PUT/PATCH /patients/<id>/`
+- `DELETE /patients/<id>/`
+- Permission: authenticated
+
+Update returns a JSON envelope:
+
+- `{ "message": "Patient updated successfully", "patient": { ... } }`
+
+Delete returns:
+
+- `{ "message": "Patient \"<name>\" deleted successfully" }`
+
+#### List patients by doctor id
+
+- `GET /patients/doc<doctor>/`
+- Permission: authenticated
+
+Example:
+- `/patients/doc3/` lists patients where `Patient.doctor_id == 3`.
+
+---
+
+### Prescriptions
+
+Base path: `/prescriptions/`
+
+#### List prescriptions
+
+- `GET /prescriptions/`
+- Permission: authenticated
+
+> Note: the current implementation lists **all** prescriptions in the database.
+
+#### Create prescription (with items)
+
+- `POST /prescriptions/`
+- Permission: authenticated
+
+Body fields:
+- `patient` (patient id)
+- `symptoms` (text)
+- `diagnosis` (text)
+- `notes` (optional)
+- `prescription_items` (array)
+  - each item: `medicine`, `dosage`, `instructions`
+
+The `doctor` is set automatically to `request.user.profile`.
+
+---
+
+## Data model summary
+
+### `users.UserProfile`
+
+- `user` → OneToOne to Django `User`
+- `specialization` → choice field, default `General Medicine`
+- `license_number` → unique string
+
+### `patients.Patient`
+
+- `name`, `age`, `gender`
+- `allergies`, `medical_history` (optional)
+- `doctor` → FK to `users.UserProfile`
+
+### `prescriptions.Prescription`
+
+- `prescription_date` (auto)
+- `doctor` → FK to `users.UserProfile`
+- `patient` → FK to `patients.Patient`
+- `symptoms`, `diagnosis`, `notes`
+
+### `prescriptions.PrescriptionItem`
+
+- `prescription` → FK to `Prescription` (related name `prescription_items`)
+- `medicine`, `dosage`, `instructions`
+
+---
+
+## Admin
+
+Django admin is mounted at:
+
+- `/nitish/`
+
+Create a superuser and log in there to inspect data.
+
+---
+
+## Testing
+
+This repo includes per-app `tests.py` files (`users/tests.py`, `patients/tests.py`, `prescriptions/tests.py`).
+
+Run tests:
+
+```bash
+python manage.py test
 ```
 
-**Response (201 Created):**
-```json
-{
-  "id": 1,
-  "prescription_date": "2025-06-19",
-  "doctor": 1,
-  "patient": 1,
-  "symptoms": "Chest pain, shortness of breath",
-  "diagnosis": "Angina pectoris",
-  "notes": "Patient advised to follow up in 2 weeks",
-  "prescription_items": [
-    {
-      "medicine": "Aspirin",
-      "dosage": "81mg daily",
-      "instructions": "Take with food in the morning"
-    },
-    {
-      "medicine": "Metoprolol",
-      "dosage": "50mg twice daily",
-      "instructions": "Take with or without food"
-    }
-  ]
-}
+---
+
+## Production / deployment notes
+
+- The project includes `gunicorn` and `whitenoise` in `requirements.txt`, which are commonly used for deployment.
+- `ALLOWED_HOSTS` includes `medimind-295g.onrender.com` and also `*`.
+- Static files are configured with:
+  - `STATIC_ROOT = <repo>/staticfiles`
+  - `STATICFILES_STORAGE = whitenoise.storage.CompressedManifestStaticFilesStorage`
+
+Typical deployment steps:
+
+1. Set `DJANGO_DEBUG=False`
+2. Set a strong `DJANGO_SECRET_KEY`
+3. Provide a production `DATABASE_URL`
+4. Run migrations on deploy
+5. Collect static files:
+
+```bash
+python manage.py collectstatic --noinput
 ```
-
-## Data Models
-
-### User Profile
-```json
-{
-  "user": "User ID (Foreign Key)",
-  "specialization": "Medical specialization",
-  "license_number": "Unique medical license number"
-}
-```
-
-### Patient
-```json
-{
-  "id": "Primary Key",
-  "name": "Patient full name (2-100 characters)",
-  "age": "Age (0-150)",
-  "gender": "Male/Female/Other",
-  "allergies": "Known allergies (optional)",
-  "medical_history": "Medical history (optional)"
-}
-```
-
-### Prescription
-```json
-{
-  "id": "Primary Key",
-  "prescription_date": "Auto-generated date",
-  "doctor": "Doctor ID (Foreign Key to UserProfile)",
-  "patient": "Patient ID (Foreign Key)",
-  "symptoms": "Patient symptoms",
-  "diagnosis": "Medical diagnosis",
-  "notes": "Additional notes (optional)",
-  "prescription_items": "Array of prescription items"
-}
-```
-
-### Prescription Item
-```json
-{
-  "medicine": "Medicine name",
-  "dosage": "Dosage information",
-  "instructions": "Usage instructions"
-}
-```
-
-## Error Handling
-
-### Validation Errors
-**Status Code:** 400 Bad Request
-
-```json
-{
-  "error": "Validation failed",
-  "details": {
-    "field_name": ["Error message"]
-  }
-}
-```
-
-### Authentication Errors
-**Status Code:** 401 Unauthorized
-
-```json
-{
-  "detail": "Authentication credentials were not provided."
-}
-```
-
-### Permission Errors
-**Status Code:** 403 Forbidden
-
-```json
-{
-  "detail": "You do not have permission to perform this action."
-}
-```
-
-### Not Found Errors
-**Status Code:** 404 Not Found
-
-```json
-{
-  "detail": "Not found."
-}
-```
-
-## Status Codes
-
-| Code | Description |
-|------|-------------|
-| 200  | OK - Request successful |
-| 201  | Created - Resource created successfully |
-| 400  | Bad Request - Validation or request error |
-| 401  | Unauthorized - Authentication required |
-| 403  | Forbidden - Insufficient permissions |
-| 404  | Not Found - Resource not found |
-| 500  | Internal Server Error - Server error |
-
-## Validation Rules
-
-### Patient Validation
-- **Name**: Minimum 2 characters, automatically titlecased
-- **Age**: Between 0 and 150
-- **Gender**: Must be 'Male', 'Female', or 'Other'
-
-### User Registration Validation
-- **Email**: Required and must be valid email format
-- **Password**: Must pass Django's password validation
-- **Password Confirmation**: Must match the password field
-- **License Number**: Required, maximum 50 characters, must be unique
-- **Username**: Must be unique
-
-### Prescription Validation
-- **Patient**: Must be a valid patient ID
-- **Doctor**: Automatically set to the authenticated user's profile
-- **Prescription Items**: At least one item is recommended
-
-## Notes
-
-- All timestamps are in Asia/Kolkata timezone.
-- CORS is enabled for all origins (development setting)
-- SQLite database is used (suitable for development)
-- JWT tokens are used for authentication
-- The API follows RESTful conventions
-- All authenticated endpoints require a valid JWT token in the Authorization header

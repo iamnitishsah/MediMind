@@ -1,161 +1,186 @@
-# 🩺 MediMind-AI Prescription Generator
+# MediMind-AI — Prescription Generator API (Gemini + FastAPI)
 
-This is a FastAPI that uses **Google Gemini (via LangChain)** to generate medical diagnoses and prescriptions based on patient data.
+A small FastAPI service that takes basic patient intake information and uses **Google Gemini** (via LangChain) to generate a structured **diagnosis + prescription** response as JSON.
 
----
-
-## 🚀 Features
-
-- Accepts patient data in JSON format
-- Uses Google Gemini (via LangChain) for generating diagnosis and prescriptions
-- Returns structured JSON output with medicines and instructions
-- Built with FastAPI and Pydantic for easy integration and validation
+> Important: This repository is a prototype/demo. The API can generate incorrect or unsafe medical content. Read the **Safety / Medical Disclaimer** section before using.
 
 ---
 
-## 🛠️ Setup Instructions
+## What this service does
 
-### 1. Clone the Repository
+- Exposes a single HTTP endpoint: `POST /generate_prescription`
+- Validates a minimal payload (name/age/gender/allergies/medical_history/symptoms)
+- Calls Gemini via LangChain
+- Parses the model output into a Pydantic schema:
+  - `diagnosis` (string)
+  - `notes` (string)
+  - `prescription_items` (list of `{ medicine, dosage, instructions }`)
+
+---
+
+## Tech stack
+
+- **FastAPI** + **Uvicorn**
+- **LangChain** + **langchain-google-genai**
+- **Pydantic v2** for typed response parsing
+- **python-dotenv** for local configuration
+- **loguru** for logging
+
+---
+
+## Project structure
+
+- `app/main.py` — FastAPI app setup, CORS, router registration
+- `app/routes/prescription.py` — HTTP route `POST /generate_prescription`
+- `app/services/prescription.py` — payload validation + LLM invocation
+- `app/core/config.py` — loads env vars (`.env`) and validates required config
+- `app/core/llm.py` — prompt + Gemini model + JSON output parsing chain
+- `app/models/prescription.py` — Pydantic schemas for the JSON response
+
+---
+
+## Setup
+
+### Prerequisites
+
+- Python 3.10+ (recommended: 3.11/3.12)
+- A Google Gemini API key
+
+### Install
+
+Create and activate a virtual environment, then install dependencies:
 
 ```bash
-git clone https://github.com/iamnitishsah/MediMind/MediMind-AI.git
-cd MediMind-AI
-````
-
-### 2. Install Dependencies
-
-```bash
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-**Requirements:**
+---
 
-```
-fastapi
-uvicorn[standard]
-python-dotenv
-pydantic
-langchain
-langchain-core
-langchain-google-genai
-```
+## Configuration
 
-### 3. Add Environment Variables
+This service loads environment variables via `.env` (through `python-dotenv`).
 
-Create a `.env` file and add your Google Gemini API key:
-
-```env
-GEMINI_API_KEY=your_google_api_key_here
-```
-
-### 4. Run the FastAPI Server
+Create a `.env` file in the repo root:
 
 ```bash
-uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+GEMINI_API_KEY=your_api_key_here
+GEMINI_MODEL=gemini-2.5-flash
 ```
 
-## Deployed Domain URL
-```
-https://medimind-ai.onrender.com
-```
+### Environment variables
+
+| Variable | Required | Description                                                           |
+|---|---:|-----------------------------------------------------------------------|
+| `GEMINI_API_KEY` | yes | Gemini API key. The app raises at startup if missing.                 |
+| `GEMINI_MODEL` | recommended | Gemini model name passed to the client (example: `gemini-2.5-flash`). |
+
 
 ---
 
-## 📡 API Documentation
+## Run locally
 
-### 🔹 Endpoint: `POST /generate_prescription`
+Start the API with Uvicorn:
 
-Generate a medical diagnosis and prescription from patient input.
+```bash
+uvicorn app.main:app --reload
+```
 
-#### ✅ Request Headers
+Default dev URL:
+- http://127.0.0.1:8000
 
-| Key          | Value            |
-| ------------ | ---------------- |
-| Content-Type | application/json |
+Interactive API docs:
+- Swagger UI: http://127.0.0.1:8000/docs
+- ReDoc: http://127.0.0.1:8000/redoc
+
+CORS note:
+- CORS is currently configured to allow all origins (`*`) in `app/main.py`.
 
 ---
 
-#### 📥 Request Body (JSON)
+## API
 
-| Field             | Type   | Description                       | Required |
-| ----------------- | ------ | --------------------------------- | -------- |
-| `name`            | string | Patient's full name               | ✅        |
-| `age`             | int    | Patient's age                     | ✅        |
-| `gender`          | string | Male/Female/Other                 | ✅        |
-| `allergies`       | string | Known allergies (comma-separated) | ✅        |
-| `medical_history` | string | Medical history summary           | ✅        |
-| `symptoms`        | string | Current symptoms                  | ✅        |
+### `POST /generate_prescription`
 
-#### Example Request:
+Generates a structured prescription JSON from patient intake details.
+
+#### Request body
+
+JSON object with **all** required fields:
+
+- `name` (string)
+- `age` (number or string; forwarded to the LLM)
+- `gender` (string)
+- `allergies` (string)
+- `medical_history` (string)
+- `symptoms` (string)
+
+Example:
+
+```bash
+curl -X POST "http://127.0.0.1:8000/generate_prescription" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Alex Doe",
+    "age": 34,
+    "gender": "male",
+    "allergies": "penicillin",
+    "medical_history": "asthma",
+    "symptoms": "fever, sore throat, cough"
+  }'
+```
+
+#### Successful response (200)
+
+The response is parsed into the `Prescription` schema:
 
 ```json
 {
-  "name": "John Smith",
-  "age": 45,
-  "gender": "Male",
-  "allergies": "Penicillin, Shellfish",
-  "medical_history": "Hypertension, Type 2 Diabetes",
-  "symptoms": "Persistent cough, shortness of breath, and fatigue"
-}
-```
-
----
-
-#### 📤 Response (200 OK)
-
-```json
-{
-  "diagnosis": "Chronic Bronchitis",
-  "notes": "Patient advised to avoid allergens and rest. Follow-up in 1 week.",
+  "diagnosis": "...",
+  "notes": "...",
   "prescription_items": [
     {
-      "medicine": "Salbutamol",
-      "dosage": "2 puffs every 4-6 hours as needed",
-      "instructions": "Use with inhaler; shake well before use"
-    },
-    {
-      "medicine": "Paracetamol",
-      "dosage": "500 mg every 6 hours",
-      "instructions": "Take after meals to avoid gastric upset"
+      "medicine": "...",
+      "dosage": "...",
+      "instructions": "..."
     }
   ]
 }
 ```
 
----
+#### Error responses
 
-#### ❌ Error Responses
-
-* **400 Bad Request**
-
-```json
-{
-  "error": "Missing required fields"
-}
-```
-
-* **500 Internal Server Error**
-
-```json
-{
-  "error": "Error message from LangChain/Gemini"
-}
-```
+- `400 {"error": "Invalid JSON"}` — request body is not valid JSON
+- `400 {"error": "Missing required fields"}` — any required field is missing
+- `500 {"error": "Internal server error"}` — unhandled server-side exception
 
 ---
 
-## 🧪 Testing with Postman
+## Troubleshooting
 
-1. Select `POST` method.
-2. URL: `http://your-domain.com/generate_prescription`
-3. Headers: `Content-Type: application/json`
-4. Body: raw JSON as shown above
-5. Click **Send** to get AI-generated prescription.
+### `EnvironmentError: GEMINI_API_KEY not set in environment`
+
+Set `GEMINI_API_KEY` in your shell environment or in a `.env` file in the repository root.
+
+### Gemini model initialization errors
+
+- Confirm `GEMINI_MODEL` is set to a valid model name for your account/region.
+- Confirm your API key is active and has access to Gemini.
+
+### JSON parsing / schema errors
+
+The service uses a strict JSON parser (`JsonOutputParser`) bound to the Pydantic `Prescription` model. If Gemini returns malformed JSON or a mismatched structure, the request may fail.
 
 ---
 
-## 📌 Notes
+## Safety / Medical Disclaimer (read this)
 
-* Model used: `gemini-2.5-pro` via `langchain-google-genai`
-* Output is validated using Pydantic models.
-* This is a prototype and not a substitute for medical advice.
+This project can generate medical-sounding output, including medication suggestions. It is **not** a substitute for professional medical judgment.
+
+- Do **not** use this system to make real-world diagnosis or treatment decisions.
+- Outputs may be incomplete, incorrect, inappropriate, or dangerous.
+- Any result must be reviewed and approved by a licensed clinician before use.
+- If this is used in any workflow involving patients, you are responsible for compliance, privacy, auditing, and safety controls.
+
+---
