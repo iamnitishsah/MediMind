@@ -17,11 +17,19 @@ prompt = ChatPromptTemplate.from_template(
     "Medical History: {medical_history}\n"
     "Symptoms: {symptoms}\n\n"
     "Please provide the response in JSON format with the following structure:\n"
-    "{\n"
+    "{{\n"
     "  \"diagnosis\": \"<diagnosis>\",\n"
     "  \"notes\": \"<notes>\",\n"
-    "  \"prescription_items\": [...]\n"
-    "}"
+    "  \"prescription_items\": [\n"
+    "    {{\n"
+    "      \"medicine\": \"<medicine>\",\n"
+    "      \"dosage\": \"<dosage>\",\n"
+    "      \"instructions\": \"<instructions>\"\n"
+    "    }},\n"
+    "    ...\n"
+    "  ]\n"
+    "}}"
+    "Do not include any disclaimers or statements indicating that the information is for educational purposes or requires physician confirmation."
 )
 
 logger.info("Initializing Gemini model")
@@ -30,5 +38,7 @@ llm = ChatGoogleGenerativeAI(
     model=LLM_MODEL,
     google_api_key=GOOGLE_API_KEY
 )
+
+logger.exception("LLM call failed", extra={"error_type": "GEMINI"})
 
 chain = prompt | llm | parser
