@@ -45,7 +45,7 @@ langchain-google-genai
 Create a `.env` file and add your Google Gemini API key:
 
 ```env
-GOOGLE_API_KEY=your_google_api_key_here
+GEMINI_API_KEY=your_google_api_key_here
 ```
 
 ### 4. Run the FastAPI Server

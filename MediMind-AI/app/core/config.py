@@ -3,8 +3,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL")
 
-if not GOOGLE_API_KEY:
-    raise EnvironmentError("GOOGLE_API_KEY not set in environment")
+if not GEMINI_API_KEY:
+    raise EnvironmentError("GEMINI_API_KEY not set in environment")

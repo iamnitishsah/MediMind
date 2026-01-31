@@ -2,7 +2,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_google_genai import ChatGoogleGenerativeAI
 from app.models.prescription import Prescription
-from app.core.config import GOOGLE_API_KEY, GEMINI_MODEL
+from app.core.config import GEMINI_API_KEY, GEMINI_MODEL
 from loguru import logger
 
 parser = JsonOutputParser(pydantic_object=Prescription)
@@ -36,7 +36,7 @@ logger.info("Initializing Gemini model")
 
 llm = ChatGoogleGenerativeAI(
     model=GEMINI_MODEL,
-    google_api_key=GOOGLE_API_KEY
+    google_api_key=GEMINI_API_KEY
 )
 
 logger.info("Gemini Model initialized")
