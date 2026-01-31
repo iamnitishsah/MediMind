@@ -2,7 +2,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_google_genai import ChatGoogleGenerativeAI
 from app.models.prescription import Prescription
-from app.core.config import GOOGLE_API_KEY, LLM_MODEL
+from app.core.config import GOOGLE_API_KEY, GEMINI_MODEL
 from loguru import logger
 
 parser = JsonOutputParser(pydantic_object=Prescription)
@@ -35,10 +35,10 @@ prompt = ChatPromptTemplate.from_template(
 logger.info("Initializing Gemini model")
 
 llm = ChatGoogleGenerativeAI(
-    model=LLM_MODEL,
+    model=GEMINI_MODEL,
     google_api_key=GOOGLE_API_KEY
 )
 
-logger.exception("LLM call failed", extra={"error_type": "GEMINI"})
+logger.info("Gemini Model initialized")
 
 chain = prompt | llm | parser
