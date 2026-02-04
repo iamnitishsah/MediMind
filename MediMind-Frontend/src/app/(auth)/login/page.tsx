@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { warmUpAIInstance } from '@/app/lib/warmup';
 
 interface LoginData {
   username: string;
@@ -84,7 +85,8 @@ export default function LoginPage() {
         if (data.refresh) {
           localStorage.setItem('refresh_token', data.refresh);
         }
-        
+
+        warmUpAIInstance();
         // Login successful - redirect to dashboard
         router.push('/patients');
       } else {
