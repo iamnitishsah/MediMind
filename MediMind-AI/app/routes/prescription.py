@@ -5,6 +5,9 @@ from loguru import logger
 
 router = APIRouter()
 
+@router.get("/health")
+def health():
+    return {"status": "ok"}
 
 @router.post("/generate_prescription")
 async def generate_prescription(request: Request):

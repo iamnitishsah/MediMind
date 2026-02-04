@@ -1,10 +1,14 @@
-export const warmUpAIInstance = async () => {
+const AI_BASE_URL = process.env.NEXT_PUBLIC_AI_URL;
+
+export const warmUpAIInstance = () => {
+    if (!AI_BASE_URL) return;
+
     try {
-        fetch(process.env.NEXT_PUBLIC_AI_URL as string, {
+        void fetch(`${AI_BASE_URL}/health`, {
             method: 'GET',
-            keepalive: true, // important for background requests
+            keepalive: true,
         });
     } catch {
-        // intentionally silent
+        console.warn('Failed to warm up AI instance');
     }
 };
